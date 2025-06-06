@@ -40,6 +40,21 @@ variable "private_subnet_name" {
   default = "ec2_private_subnet_name"
 }
 
+variable "private_subnet2_cidr" {
+  type    = string
+  default = "10.0.3.0/24"
+}
+
+variable "private_subnet2_az" {
+  type    = string
+  default = "us-east-1b"
+}
+
+variable "private_subnet2_name" {
+  type    = string
+  default = "ec2_private_subnet2_name"
+}
+
 variable "ig_name" {
   type    = string
   default = "ig"
@@ -79,4 +94,30 @@ variable "ml_flow_security_group_name" {
 variable "rds_security_group_name" {
   type    = string
   default = "rds-sg"
+}
+
+# RDS variables
+
+variable "rds_instance_identifier" { 
+  default = "mlflow-db" 
+}
+
+variable "rds_instance_class" { 
+  default = "db.t3.micro"
+}
+
+variable "rds_allocated_storage" {
+  default = 20
+}
+
+variable "rds_db_name" { 
+  default = "mlflowdb"
+}
+
+variable "rds_username" {
+  default = "admin"
+}
+
+variable "rds_password" { 
+  sensitive = true 
 }
