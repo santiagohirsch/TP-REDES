@@ -11,6 +11,7 @@ resource "aws_instance" "this" {
         db_password   = var.rds_password
         db_endpoint   = var.rds_endpoint
         db_name       = var.rds_db_name
+        mlflow_service = file("${path.module}/scripts/service.txt")
     })
 
     tags = {

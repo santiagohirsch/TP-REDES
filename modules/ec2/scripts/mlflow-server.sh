@@ -16,13 +16,30 @@ pip install --upgrade pip
 pip install mlflow psycopg2-binary
 
 # Start and configure firewall
-systemctl enable firewalld
-systemctl start firewalld
-firewall-cmd --permanent --add-port=5000/tcp
-firewall-cmd --permanent --add-service=http
-firewall-cmd --permanent --add-service=https
-firewall-cmd --reload
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+sudo firewall-cmd --permanent --add-port=5000/tcp
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload
+
+sudo chmod 777 /home/ubuntu/mlflow.log
 
 # Start MLflow server from the virtual environment
-nohup /home/ubuntu/mlflow-venv/bin/mlflow server \
-  --backend-store-uri postgresql://${db_user}:${db_password}@${db_endpoint}/${db_name} > /home/ubuntu/mlflow.log 2>&1 &
+# nohup /home/ubuntu/mlflow-venv/bin/mlflow server --backend-store-uri postgresql://${db_user}:${db_password}@${db_endpoint}/${db_name} > /home/ubuntu/mlflow.log 2>&1 &
+
+sudo tee /etc/systemd/system/mlflow.service > /dev/null <<EOF
+${mlflow_service}
+EOF
+
+sudo tee /home/ubuntu/start-mlflow.sh > /dev/null <<EOF
+#!/bin/bash
+source /home/ubuntu/mlflow-venv/bin/activate
+exec mlflow server --host 0.0.0.0 --port 5000
+EOF
+
+sudo chmod +x /home/ubuntu/start-mlflow.sh
+
+sudo systemctl daemon-reload
+sudo systemctl start mlflow
+sudo systemctl enable mlflow
