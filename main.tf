@@ -97,6 +97,14 @@ resource "aws_security_group" "ec2_ml_flow-sg" {
     description = "Allow incoming HTTP connections"
   }
 
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow incoming connections to MLflow server"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
