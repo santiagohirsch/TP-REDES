@@ -24,20 +24,28 @@ variable "security_group_ids" {
   default = []
 }
 
-/*variable "user_data_path" {
-  type = string
-}*/
-
-variable "rds_endpoint" {
-  description = "Endpoint de la base de datos RDS"
+variable "rds_username" {
+  description = "Nombre de usuario de la base de datos RDS"
   type        = string
   default     = ""
 }
 
-variable "rds_port" {
-  description = "Puerto de la base de datos RDS"
-  type        = number
-  default     = 3306
+variable "rds_password" {
+  description = "Contraseña de la base de datos RDS"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "rds_db_name" {
+  description = "Nombre de la base de datos RDS"
+  type        = string
+  default     = ""
+}
+
+variable "rds_endpoint" {
+  description = "Endpoint de la base de datos RDS"
+  type        = string
 }
 
 variable "master_server_ip" {

@@ -19,6 +19,12 @@ module "my_vpc" {
       name              = var.private_subnet_name
       public            = false
     },
+    {
+      cidr_block        = var.private_subnet2_cidr
+      availability_zone = var.private_subnet2_az
+      name              = var.private_subnet2_name
+      public            = false
+    }
   ]
 }
 
@@ -34,12 +40,15 @@ module "ec2_ml_flow" {
   security_group_ids  = [aws_security_group.ec2_ml_flow-sg.id]
   instance_name       = var.ml_flow_server_name
   public              = module.my_vpc.subnets[var.public_subnet_name].public
-  # rds_endpoint       = module.rds.rds_endpoint
-  # rds_port           = module.rds.rds_port
+  rds_endpoint        = module.rds.rds_endpoint
+  rds_username        = module.rds.rds_username
+  rds_password        = var.rds_password
+  rds_db_name         = module.rds.rds_db_name
 
   depends_on = [ 
     aws_key_pair.ec2,
-    module.my_vpc
+    module.my_vpc,
+    module.rds
   ]
 }
 
@@ -88,6 +97,14 @@ resource "aws_security_group" "ec2_ml_flow-sg" {
     description = "Allow incoming HTTP connections"
   }
 
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow incoming connections to MLflow server"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -107,8 +124,8 @@ resource "aws_security_group" "rds-sg" {
   vpc_id      = module.my_vpc.id
 
   ingress {
-    from_port   = 3306
-    to_port     = 3306
+    from_port   = 5432
+    to_port     = 5432
     protocol    = "tcp"
     security_groups = [aws_security_group.ec2_ml_flow-sg.id]
     description = "Allow MySQL access from EC2 master"
@@ -124,4 +141,22 @@ resource "aws_security_group" "rds-sg" {
   tags = {
     Name = var.rds_security_group_name
   }
+}
+
+#########################################
+###               RDS                 ###
+#########################################
+
+module "rds" {
+  source              = "./modules/rds"
+  name                = var.rds_instance_identifier
+  instance_class      = var.rds_instance_class
+  allocated_storage   = var.rds_allocated_storage
+  db_name             = var.rds_db_name
+  username            = var.rds_username
+  password            = var.rds_password
+  subnet_ids          = [module.my_vpc.subnets[var.private_subnet_name].id, 
+                        module.my_vpc.subnets[var.private_subnet2_name].id]
+  security_group_ids  = [aws_security_group.rds-sg.id]
+  publicly_accessible = false
 }
