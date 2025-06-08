@@ -35,7 +35,7 @@ EOF
 sudo tee /home/ubuntu/start-mlflow.sh > /dev/null <<EOF
 #!/bin/bash
 source /home/ubuntu/mlflow-venv/bin/activate
-exec mlflow server --host 0.0.0.0 --port 5000
+exec mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri postgresql://${db_user}:${db_password}@${db_endpoint}/${db_name}
 EOF
 
 sudo chmod +x /home/ubuntu/start-mlflow.sh
