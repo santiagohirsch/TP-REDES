@@ -5,8 +5,14 @@ import mlflow
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, accuracy_score, precision_score, recall_score, f1_score
+from dotenv import load_dotenv
+import os
 
-mlflow.set_tracking_uri(uri="http://localhost:8080")
+load_dotenv()
+
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+
+mlflow.set_tracking_uri(uri=tracking_uri)
 
 df = pd.read_csv("dataset_futbol_simulado.csv")
 

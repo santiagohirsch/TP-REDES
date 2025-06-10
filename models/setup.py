@@ -90,6 +90,13 @@ def create_directories():
         else:
             print(f"   📁 Directorio '{directory}' ya existe")
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+
 def main():
     print("🚀 CONFIGURACIÓN DEL ENTORNO DE MACHINE LEARNING")
     print("=" * 60)
@@ -121,7 +128,7 @@ def main():
     print("   python3 run_json_experiments.py")
     print("\n3. Ver resultados en MLflow:")
     print("   mlflow ui --port 8080")
-    print("   Luego ve a: http://localhost:8080")
+    print(f"   Luego ve a: {tracking_uri}")
     
     print("\n📚 Archivos principales:")
     print("   • predictor_from_json.py - Script principal")

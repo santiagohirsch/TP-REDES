@@ -7,6 +7,12 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression, PoissonRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, accuracy_score, precision_score, recall_score, f1_score
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
 
 def load_config(config_path):
     """
@@ -15,13 +21,13 @@ def load_config(config_path):
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
-        print(f"✅ Configuración cargada desde: {config_path}")
+        print(f"Configuración cargada desde: {config_path}")
         return config
     except FileNotFoundError:
-        print(f"❌ Error: No se encontró el archivo {config_path}")
+        print(f"Error: No se encontró el archivo {config_path}")
         sys.exit(1)
     except json.JSONDecodeError:
-        print(f"❌ Error: El archivo {config_path} no es un JSON válido")
+        print(f"Error: El archivo {config_path} no es un JSON válido")
         sys.exit(1)
 
 def get_model_class(model_type):
@@ -44,17 +50,17 @@ def train_and_evaluate_model(config):
     """
     Entrena y evalúa el modelo según la configuración
     """
-    print(f"\n🚀 Iniciando entrenamiento: {config['run_name']}")
-    print(f"📊 Modelo: {config['model_type']}")
-    print(f"⚙️  Parámetros: {config['parameters']}")
+    print(f"\n Iniciando entrenamiento: {config['run_name']}")
+    print(f"Modelo: {config['model_type']}")
+    print(f"Parámetros: {config['parameters']}")
     
     # Configurar MLflow
-    mlflow.set_tracking_uri(uri="http://localhost:8080")
+    mlflow.set_tracking_uri(uri=tracking_uri)
     mlflow.set_experiment(config['experiment_name'])
     
     # Cargar dataset
     df = pd.read_csv(config['dataset']['file_path'])
-    print(f"📂 Dataset cargado: {config['dataset']['file_path']} ({len(df)} filas)")
+    print(f"Dataset cargado: {config['dataset']['file_path']} ({len(df)} filas)")
     
     # Preparar features y targets
     X = df[config['dataset']['features']]
@@ -68,26 +74,26 @@ def train_and_evaluate_model(config):
         random_state=config['training']['random_state']
     )
     
-    print(f"📈 Datos de entrenamiento: {len(X_train)} muestras")
-    print(f"📉 Datos de test: {len(X_test)} muestras")
+    print(f"Datos de entrenamiento: {len(X_train)} muestras")
+    print(f"Datos de test: {len(X_test)} muestras")
     
     # Obtener clase del modelo
     ModelClass = get_model_class(config['model_type'])
     
     # Entrenar modelo para equipo local
-    print("\n🏠 Entrenando modelo para equipo local...")
+    print("\Entrenando modelo para equipo local...")
     reg_local = ModelClass(**config['parameters'])
     reg_local.fit(X_train, y_train_local)
     y_pred_local = reg_local.predict(X_test)
     
     # Entrenar modelo para equipo visitante
-    print("✈️  Entrenando modelo para equipo visitante...")
+    print("Entrenando modelo para equipo visitante...")
     reg_visitante = ModelClass(**config['parameters'])
     reg_visitante.fit(X_train, y_train_visitante)
     y_pred_visitante = reg_visitante.predict(X_test)
     
     # Calcular métricas
-    print("\n📊 Calculando métricas...")
+    print("\nCalculando métricas...")
     metrics = calculate_metrics(y_test_local, y_pred_local, y_test_visitante, y_pred_visitante)
     
     # Mostrar resultados
@@ -133,23 +139,23 @@ def print_results(metrics):
     Imprime los resultados de forma organizada
     """
     print("\n" + "="*50)
-    print("📊 RESULTADOS DEL EXPERIMENTO")
+    print("RESULTADOS DEL EXPERIMENTO")
     print("="*50)
-    print(f"🏠 Equipo Local:")
+    print(f"  Equipo Local:")
     print(f"   MSE: {metrics['mse_local']:.4f}")
     print(f"   Accuracy: {metrics['accuracy_local']:.4f}")
     print(f"   Precision: {metrics['precision_local']:.4f}")
     print(f"   Recall: {metrics['recall_local']:.4f}")
     print(f"   F1-score: {metrics['f1_local']:.4f}")
     
-    print(f"\n✈️  Equipo Visitante:")
+    print(f"\n Equipo Visitante:")
     print(f"   MSE: {metrics['mse_visitante']:.4f}")
     print(f"   Accuracy: {metrics['accuracy_visitante']:.4f}")
     print(f"   Precision: {metrics['precision_visitante']:.4f}")
     print(f"   Recall: {metrics['recall_visitante']:.4f}")
     print(f"   F1-score: {metrics['f1_visitante']:.4f}")
     
-    print(f"\n📈 Promedios:")
+    print(f"\n Promedios:")
     print(f"   MSE Promedio: {metrics['mse_promedio']:.4f}")
     print(f"   Accuracy Promedio: {metrics['accuracy_promedio']:.4f}")
 
@@ -157,7 +163,7 @@ def register_in_mlflow(config, metrics, reg_local, reg_visitante, X_train, y_pre
     """
     Registra el experimento en MLflow
     """
-    print("\n💾 Registrando en MLflow...")
+    print("\n Registrando en MLflow...")
     
     with mlflow.start_run(run_name=config['run_name']):
         # Log parameters
@@ -192,7 +198,7 @@ def register_in_mlflow(config, metrics, reg_local, reg_visitante, X_train, y_pre
             registered_model_name=f"{config['model_type']}_JSON_Visitante_{config['run_name']}"
         )
     
-    print(f"✅ Experimento '{config['run_name']}' registrado exitosamente en MLflow!")
+    print(f" Experimento '{config['run_name']}' registrado exitosamente en MLflow!")
 
 def main():
     if len(sys.argv) != 2:
@@ -202,7 +208,7 @@ def main():
     
     config_path = sys.argv[1]
     
-    print("🔬 PREDICTOR BASADO EN CONFIGURACIÓN JSON")
+    print("PREDICTOR BASADO EN CONFIGURACIÓN JSON")
     print("=" * 50)
     
     # Cargar configuración
@@ -211,8 +217,8 @@ def main():
     # Entrenar y evaluar
     metrics = train_and_evaluate_model(config)
     
-    print(f"\n✅ Experimento completado exitosamente!")
-    print(f"🌐 Revisa los resultados en MLflow: http://localhost:8080")
+    print(f"\n Experimento completado exitosamente!")
+    print(f" Revisa los resultados en MLflow: {tracking_uri}")
 
 if __name__ == "__main__":
     main() 

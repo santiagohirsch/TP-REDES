@@ -238,6 +238,13 @@ def main():
     else:
         print("❌ Opción no válida")
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+
 def print_summary(successful, failed, total):
     """
     Imprime un resumen de los experimentos ejecutados
@@ -252,7 +259,7 @@ def print_summary(successful, failed, total):
     
     if successful > 0:
         print("\n✅ Revisa los resultados en MLflow UI:")
-        print("   🌐 http://localhost:8080")
+        print(f"   🌐 {tracking_uri}")
 
 if __name__ == "__main__":
     main() 
