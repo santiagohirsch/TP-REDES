@@ -2,9 +2,9 @@ import requests
 import os
 
 # Endpoints
-BASE_URL = os.getenv("MLFLOW_TRACKING_URI", "localhost:5000")
-experiments_url = f"http://{BASE_URL}/api/2.0/mlflow/experiments/search"
-runs_url = f"http://{BASE_URL}/api/2.0/mlflow/runs/search"
+BASE_URL = os.getenv("BASE_URL")
+experiments_url = f"http://{BASE_URL}:5000/api/2.0/mlflow/experiments/search"
+runs_url = f"http://{BASE_URL}:5000/api/2.0/mlflow/runs/search"
 
 # Optional: Query parameters
 params = {
