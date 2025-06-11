@@ -81,7 +81,7 @@ def train_and_evaluate_model(config):
     ModelClass = get_model_class(config['model_type'])
     
     # Entrenar modelo para equipo local
-    print("\Entrenando modelo para equipo local...")
+    print("\n Entrenando modelo para equipo local...")
     reg_local = ModelClass(**config['parameters'])
     reg_local.fit(X_train, y_train_local)
     y_pred_local = reg_local.predict(X_test)
