@@ -22,3 +22,11 @@ rds_db_name = "mlflow_db"
 rds_instance_identifier = "mlflow-db"
 rds_instance_class = "db.t4g.micro"
 rds_allocated_storage = 20
+lambda_names = {
+    metrics = {
+        handler = "metrics.metrics_handler"
+        method = "GET"
+        env_vars = ["BASE_URL"]
+    }
+}
+api_folder = "./api"

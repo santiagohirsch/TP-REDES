@@ -121,3 +121,28 @@ variable "rds_username" {
 variable "rds_password" { 
   sensitive = true 
 }
+
+# API Gateway variables
+variable "api_method" {
+  type    = string
+  default = "GET"
+}
+
+variable "api_name" {
+  type    = string
+  default = "mlflow-api"
+}
+
+# Lambda variables
+variable "lambda_names" {
+  type = map(object({
+    handler = string
+    method  = string
+    env_vars = list(string)
+  }))
+}
+
+variable "api_folder" {
+  type    = string
+  default = "./api"
+}
