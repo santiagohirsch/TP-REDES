@@ -189,7 +189,7 @@ module "lambda" {
 ###              API GW               ###
 #########################################
 
-module "apigw" {
+module "api_gw" {
   for_each    = var.lambda_names
 
   source      = "./modules/api_gw"
