@@ -2,7 +2,7 @@ import requests
 import os
 
 # Endpoints
-BASE_URL = os.getenv("BASE_URL")
+BASE_URL = os.getenv("BASE_URL", "localhost")
 experiments_url = f"http://{BASE_URL}:5000/api/2.0/mlflow/experiments/search"
 runs_url = f"http://{BASE_URL}:5000/api/2.0/mlflow/runs/search"
 
@@ -13,16 +13,14 @@ params = {
 
 def metrics_handler(event, context):
     """
-    This handler takes the data from the mlflow api and return data in a format to be consumed by prometheus.
+    This handler takes the data from the MLflow API and returns data in Prometheus format.
     """
 
     response = requests.get(experiments_url, params=params)
-
     if response.status_code != 200:
         raise Exception(f"Failed to get experiments: {response.text}")
 
     experiments = response.json().get("experiments", [])
-
     if not experiments:
         raise Exception("No experiments found.")   
     
@@ -51,11 +49,18 @@ def metrics_handler(event, context):
     for exp_id, run in latest_runs.items():
         run_id = run["info"]["run_id"]
         metrics = run.get("data", {}).get("metrics", [])
-
         for metric in metrics:
             key = metric["key"]
             value = metric["value"]
             line = f'mlflow_{key}{{run_id="{run_id}"}} {value}'
             prometheus_metrics.append(line)
 
-    return "\n".join(prometheus_metrics)
+    response_body = "\n".join(prometheus_metrics)
+
+    return {
+        "statusCode": 200,
+        "headers": {
+            "Content-Type": "text/plain"
+        },
+        "body": response_body
+    }
