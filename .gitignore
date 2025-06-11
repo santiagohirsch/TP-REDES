@@ -112,3 +112,7 @@ Desktop.ini
 
 # Linux
 *~
+
+api/api_layer/*
+
+.env
