@@ -13,17 +13,6 @@ Modelos de Machine Learning con MLflow integrado para simular clientes del siste
 
 ## Instalación y Configuración
 
-### Opción 1: Configuración Automática
-
-```bash
-cd models
-python setup_environment.py
-```
-
-Este script detecta el sistema operativo y configura el entorno automáticamente.
-
-### Opción 2: Configuración Manual
-
 **En Windows:**
 ```cmd
 cd models

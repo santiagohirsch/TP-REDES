@@ -9,13 +9,13 @@ def ensure_configs_dir():
     """
     if not os.path.exists('configs'):
         os.makedirs('configs')
-        print("📁 Directorio 'configs/' creado")
+        print("Directorio 'configs/' creado")
 
 def generate_random_forest_configs():
     """
     Genera múltiples configuraciones JSON para RandomForest
     """
-    print("🌲 Generando configuraciones para RandomForest...")
+    print("Generando configuraciones para RandomForest...")
     
     # Definir variaciones de parámetros
     n_estimators_options = [50, 100, 200]
@@ -77,7 +77,7 @@ def generate_random_forest_configs():
         configs.append(filename)
         config_counter += 1
         
-        print(f"   ✅ Generado: {filename}")
+        print(f"     Generado: {filename}")
     
     return configs
 
@@ -85,7 +85,7 @@ def generate_gradient_boosting_configs():
     """
     Genera múltiples configuraciones JSON para GradientBoosting
     """
-    print("🚂 Generando configuraciones para GradientBoosting...")
+    print("Generando configuraciones para GradientBoosting...")
     
     # Definir variaciones de parámetros  
     selected_combinations = [
@@ -144,7 +144,7 @@ def generate_gradient_boosting_configs():
         configs.append(filename)
         config_counter += 1
         
-        print(f"   ✅ Generado: {filename}")
+        print(f"     Generado: {filename}")
     
     return configs
 
@@ -152,7 +152,7 @@ def generate_linear_regression_configs():
     """
     Genera configuraciones JSON para LinearRegression
     """
-    print("📈 Generando configuraciones para LinearRegression...")
+    print("Generando configuraciones para LinearRegression...")
     
     configs = []
     config_counter = 1
@@ -198,7 +198,7 @@ def generate_linear_regression_configs():
         configs.append(filename)
         config_counter += 1
         
-        print(f"   ✅ Generado: {filename}")
+        print(f"     Generado: {filename}")
     
     return configs
 
@@ -206,7 +206,7 @@ def generate_poisson_regression_configs():
     """
     Genera configuraciones JSON para PoissonRegressor
     """
-    print("🎯 Generando configuraciones para PoissonRegressor...")
+    print("Generando configuraciones para PoissonRegressor...")
     
     configs = []
     config_counter = 1
@@ -252,15 +252,14 @@ def generate_poisson_regression_configs():
         configs.append(filename)
         config_counter += 1
         
-        print(f"   ✅ Generado: {filename}")
+        print(f"     Generado: {filename}")
     
     return configs
 
 def main():
-    print("🛠️  GENERADOR DE CONFIGURACIONES JSON")
+    print("GENERADOR DE CONFIGURACIONES JSON")
     print("=" * 50)
-    print(f"📅 Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
+
     # Asegurar que existe el directorio
     ensure_configs_dir()
     
@@ -273,15 +272,15 @@ def main():
     all_configs.extend(generate_poisson_regression_configs())
     
     print("\n" + "=" * 50)
-    print("📊 RESUMEN DE GENERACIÓN")
+    print("RESUMEN DE GENERACIÓN")
     print("=" * 50)
     print(f"Total de archivos JSON generados: {len(all_configs)}")
-    print("\n📁 Archivos creados:")
+    print("\nArchivos creados:")
     for config_file in all_configs:
         print(f"   • {config_file}")
     
-    print(f"\n✅ Todos los archivos JSON han sido generados en el directorio 'configs/'")
-    print(f"🚀 Ahora puedes ejecutar experimentos con:")
+    print(f"\nTodos los archivos JSON han sido generados en el directorio 'configs/'")
+    print(f"Ahora puedes ejecutar experimentos con:")
     print(f"   python3 predictor_from_json.py configs/<nombre_del_archivo>.json")
     
     # Crear un archivo de índice con todos los configs
@@ -295,7 +294,7 @@ def main():
     with open('configs/index.json', 'w', encoding='utf-8') as f:
         json.dump(index, f, indent=4, ensure_ascii=False)
     
-    print(f"📄 Archivo de índice creado: configs/index.json")
+    print(f"Archivo de índice creado: configs/index.json")
 
 if __name__ == "__main__":
     main() 

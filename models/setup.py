@@ -11,15 +11,15 @@ def run_command(command, description):
     """
     Ejecuta un comando y maneja errores
     """
-    print(f"\n🔧 {description}")
+    print(f"\n {description}")
     print(f"   Ejecutando: {' '.join(command)}")
     
     try:
         result = subprocess.run(command, check=True, capture_output=True, text=True)
-        print(f"   ✅ {description} completado")
+        print(f"    {description} completado")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"   ❌ Error en {description}:")
+        print(f"    Error en {description}:")
         print(f"      {e.stderr}")
         return False
 
@@ -28,13 +28,13 @@ def check_python_version():
     Verifica que la versión de Python sea compatible
     """
     version = sys.version_info
-    print(f"🐍 Versión de Python: {version.major}.{version.minor}.{version.micro}")
+    print(f" Versión de Python: {version.major}.{version.minor}.{version.micro}")
     
     if version.major == 3 and version.minor >= 8:
-        print("   ✅ Versión de Python compatible")
+        print("    Versión de Python compatible")
         return True
     else:
-        print("   ❌ Se requiere Python 3.8 o superior")
+        print("    Se requiere Python 3.8 o superior")
         return False
 
 def install_requirements():
@@ -42,7 +42,7 @@ def install_requirements():
     Instala las dependencias del requirements.txt
     """
     if not os.path.exists('requirements.txt'):
-        print("❌ No se encontró el archivo requirements.txt")
+        print(" No se encontró el archivo requirements.txt")
         return False
     
     return run_command(
@@ -54,7 +54,7 @@ def verify_installation():
     """
     Verifica que las librerías se instalaron correctamente
     """
-    print("\n🧪 Verificando instalación de librerías...")
+    print("\n Verificando instalación de librerías...")
     
     libraries = [
         'numpy',
@@ -69,9 +69,9 @@ def verify_installation():
     for lib in libraries:
         try:
             __import__(lib)
-            print(f"   ✅ {lib}")
+            print(f"    {lib}")
         except ImportError:
-            print(f"   ❌ {lib} - No instalado")
+            print(f"    {lib} - No instalado")
             all_ok = False
     
     return all_ok
@@ -82,13 +82,13 @@ def create_directories():
     """
     directories = ['configs', 'logs', 'data']
     
-    print("\n📁 Creando directorios necesarios...")
+    print("\n Creando directorios necesarios...")
     for directory in directories:
         if not os.path.exists(directory):
             os.makedirs(directory)
-            print(f"   ✅ Directorio '{directory}' creado")
+            print(f"    Directorio '{directory}' creado")
         else:
-            print(f"   📁 Directorio '{directory}' ya existe")
+            print(f"    Directorio '{directory}' ya existe")
 
 from dotenv import load_dotenv
 import os
@@ -98,7 +98,7 @@ load_dotenv()
 tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
 
 def main():
-    print("🚀 CONFIGURACIÓN DEL ENTORNO DE MACHINE LEARNING")
+    print("CONFIGURACIÓN DEL ENTORNO DE MACHINE LEARNING")
     print("=" * 60)
     
     # Verificar versión de Python
@@ -110,18 +110,18 @@ def main():
     
     # Instalar dependencias
     if not install_requirements():
-        print("\n❌ Falló la instalación de dependencias")
+        print("\nFalló la instalación de dependencias")
         sys.exit(1)
     
     # Verificar instalación
     if not verify_installation():
-        print("\n❌ Algunas librerías no se instalaron correctamente")
+        print("\nAlgunas librerías no se instalaron correctamente")
         sys.exit(1)
     
     print("\n" + "=" * 60)
-    print("✅ CONFIGURACIÓN COMPLETADA EXITOSAMENTE")
+    print("CONFIGURACIÓN COMPLETADA EXITOSAMENTE")
     print("=" * 60)
-    print("\n🎯 Próximos pasos:")
+    print("\nPróximos pasos:")
     print("1. Generar configuraciones JSON:")
     print("   python3 generate_json_configs.py")
     print("\n2. Ejecutar experimentos:")
@@ -130,7 +130,7 @@ def main():
     print("   mlflow ui --port 8080")
     print(f"   Luego ve a: {tracking_uri}")
     
-    print("\n📚 Archivos principales:")
+    print("\nArchivos principales:")
     print("   • predictor_from_json.py - Script principal")
     print("   • generate_json_configs.py - Generador de configuraciones")
     print("   • run_json_experiments.py - Ejecutor de experimentos")

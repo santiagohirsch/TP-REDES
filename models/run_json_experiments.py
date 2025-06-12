@@ -39,8 +39,8 @@ def run_experiment_from_json(config_file):
     cmd = [sys.executable, "predictor_from_json.py", config_file]
     
     print(f"\n{'='*60}")
-    print(f"🔬 Ejecutando experimento desde: {config_file}")
-    print(f"🚀 Comando: {' '.join(cmd)}")
+    print(f"Ejecutando experimento desde: {config_file}")
+    print(f"Comando: {' '.join(cmd)}")
     print(f"{'='*60}")
     
     start_time = time.time()
@@ -48,20 +48,20 @@ def run_experiment_from_json(config_file):
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         end_time = time.time()
         
-        print("✅ STDOUT:")
+        print("STDOUT:")
         print(result.stdout)
         if result.stderr:
-            print("⚠️  STDERR:")
+            print("STDERR:")
             print(result.stderr)
         
-        print(f"⏱️  Experimento completado en {end_time - start_time:.2f} segundos")
+        print(f"Experimento completado en {end_time - start_time:.2f} segundos")
         return True
     except subprocess.CalledProcessError as e:
         end_time = time.time()
-        print(f"❌ ERROR en experimento: {e}")
+        print(f"ERROR en experimento: {e}")
         print("STDOUT:", e.stdout)
         print("STDERR:", e.stderr)
-        print(f"⏱️  Experimento falló después de {end_time - start_time:.2f} segundos")
+        print(f"Experimento falló después de {end_time - start_time:.2f} segundos")
         return False
 
 def run_all_experiments():
@@ -71,27 +71,27 @@ def run_all_experiments():
     config_files = get_available_configs()
     
     if not config_files:
-        print("❌ No se encontraron archivos de configuración JSON")
-        print("💡 Ejecuta primero: python generate_json_configs.py")
+        print("No se encontraron archivos de configuración JSON")
+        print("Ejecuta primero: python generate_json_configs.py")
         return
     
-    print(f"📁 Se encontraron {len(config_files)} archivos de configuración")
+    print(f"Se encontraron {len(config_files)} archivos de configuración")
     
     # Mostrar resumen de experimentos
-    print("\n📋 EXPERIMENTOS A EJECUTAR:")
+    print("\nEXPERIMENTOS A EJECUTAR:")
     print("-" * 60)
     for i, config_file in enumerate(config_files, 1):
         info = load_config_info(config_file)
         print(f"{i:2d}. {info['model_type']:25s} | {info['run_name']:20s} | {os.path.basename(config_file)}")
     
-    print("\n🚀 Iniciando ejecución de todos los experimentos...")
+    print("\nIniciando ejecución de todos los experimentos...")
     
     successful = 0
     failed = 0
     
     for i, config_file in enumerate(config_files, 1):
         info = load_config_info(config_file)
-        print(f"\n📊 Progreso: {i}/{len(config_files)} - Ejecutando {info['model_type']} ({info['run_name']})")
+        print(f"\nProgreso: {i}/{len(config_files)} - Ejecutando {info['model_type']} ({info['run_name']})")
         
         success = run_experiment_from_json(config_file)
         
@@ -102,7 +102,7 @@ def run_all_experiments():
         
         # Pausa breve entre experimentos
         if i < len(config_files):  # No pausar después del último
-            print("\n⏸️  Pausa de 2 segundos antes del siguiente experimento...")
+            print("\nPausa de 2 segundos antes del siguiente experimento...")
             time.sleep(2)
     
     return successful, failed, len(config_files)
@@ -127,21 +127,21 @@ def run_selected_experiments(pattern=None, model_type=None):
         config_files = filtered_files
     
     if not config_files:
-        print(f"❌ No se encontraron experimentos que coincidan con los filtros:")
+        print(f"No se encontraron experimentos que coincidan con los filtros:")
         if pattern:
             print(f"   Patrón: {pattern}")
         if model_type:
             print(f"   Tipo de modelo: {model_type}")
         return
     
-    print(f"🎯 Ejecutando {len(config_files)} experimentos filtrados")
+    print(f"Ejecutando {len(config_files)} experimentos filtrados")
     
     successful = 0
     failed = 0
     
     for i, config_file in enumerate(config_files, 1):
         info = load_config_info(config_file)
-        print(f"\n📊 Progreso: {i}/{len(config_files)} - Ejecutando {info['model_type']} ({info['run_name']})")
+        print(f"\nProgreso: {i}/{len(config_files)} - Ejecutando {info['model_type']} ({info['run_name']})")
         
         success = run_experiment_from_json(config_file)
         
@@ -152,7 +152,7 @@ def run_selected_experiments(pattern=None, model_type=None):
         
         # Pausa breve entre experimentos
         if i < len(config_files):
-            print("\n⏸️  Pausa de 2 segundos...")
+            print("\nPausa de 2 segundos...")
             time.sleep(2)
     
     return successful, failed, len(config_files)
@@ -164,11 +164,11 @@ def show_available_experiments():
     config_files = get_available_configs()
     
     if not config_files:
-        print("❌ No se encontraron archivos de configuración JSON")
-        print("💡 Ejecuta primero: python generate_json_configs.py")
+        print("No se encontraron archivos de configuración JSON")
+        print("Ejecuta primero: python generate_json_configs.py")
         return
     
-    print(f"📁 EXPERIMENTOS DISPONIBLES ({len(config_files)} total):")
+    print(f"EXPERIMENTOS DISPONIBLES ({len(config_files)} total):")
     print("=" * 80)
     
     # Agrupar por tipo de modelo
@@ -186,57 +186,56 @@ def show_available_experiments():
             print(f"   • {info['run_name']:20s} | {os.path.basename(config_file)}")
 
 def main():
-    print("🧪 EJECUTOR DE EXPERIMENTOS JSON")
+    print("EJECUTOR DE EXPERIMENTOS JSON")
     print("=" * 50)
-    print(f"📅 Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Verificar que existe el directorio de configs
     if not os.path.exists('configs'):
-        print("❌ No se encontró el directorio 'configs/'")
-        print("💡 Ejecuta primero: python generate_json_configs.py")
+        print("No se encontró el directorio 'configs/'")
+        print("Ejecuta primero: python generate_json_configs.py")
         return
     
     # Mostrar opciones
-    print("\n🎛️  OPCIONES DISPONIBLES:")
-    print("1. 📋 Ver todos los experimentos disponibles")
-    print("2. 🚀 Ejecutar TODOS los experimentos")
-    print("3. 🎯 Ejecutar solo experimentos de RandomForest")
-    print("4. 🎯 Ejecutar solo experimentos de GradientBoosting")
-    print("5. 🎯 Ejecutar solo experimentos de LinearRegression")
-    print("6. 🎯 Ejecutar solo experimentos de PoissonRegressor")
+    print("\nOPCIONES DISPONIBLES:")
+    print("1. Ver todos los experimentos disponibles")
+    print("2. Ejecutar TODOS los experimentos")
+    print("3. Ejecutar solo experimentos de RandomForest")
+    print("4. Ejecutar solo experimentos de GradientBoosting")
+    print("5. Ejecutar solo experimentos de LinearRegression")
+    print("6. Ejecutar solo experimentos de PoissonRegressor")
     
-    choice = input("\n🔢 Selecciona una opción (1-6): ").strip()
+    choice = input("\nSelecciona una opción (1-6): ").strip()
     
     if choice == "1":
         show_available_experiments()
     
     elif choice == "2":
-        print("\n🚀 Ejecutando TODOS los experimentos...")
+        print("\nEjecutando TODOS los experimentos...")
         successful, failed, total = run_all_experiments()
         print_summary(successful, failed, total)
     
     elif choice == "3":
-        print("\n🌲 Ejecutando experimentos de RandomForest...")
+        print("\nEjecutando experimentos de RandomForest...")
         successful, failed, total = run_selected_experiments(model_type="RandomForest")
         print_summary(successful, failed, total)
     
     elif choice == "4":
-        print("\n🚂 Ejecutando experimentos de GradientBoosting...")
+        print("\nEjecutando experimentos de GradientBoosting...")
         successful, failed, total = run_selected_experiments(model_type="GradientBoosting")
         print_summary(successful, failed, total)
     
     elif choice == "5":
-        print("\n📈 Ejecutando experimentos de LinearRegression...")
+        print("\nEjecutando experimentos de LinearRegression...")
         successful, failed, total = run_selected_experiments(model_type="LinearRegression")
         print_summary(successful, failed, total)
     
     elif choice == "6":
-        print("\n🎯 Ejecutando experimentos de PoissonRegressor...")
+        print("\nEjecutando experimentos de PoissonRegressor...")
         successful, failed, total = run_selected_experiments(model_type="PoissonRegressor")
         print_summary(successful, failed, total)
     
     else:
-        print("❌ Opción no válida")
+        print("Opción no válida")
 
 from dotenv import load_dotenv
 import os
@@ -250,7 +249,7 @@ def print_summary(successful, failed, total):
     Imprime un resumen de los experimentos ejecutados
     """
     print("\n" + "=" * 60)
-    print("📊 RESUMEN FINAL DE EXPERIMENTOS")
+    print("RESUMEN FINAL DE EXPERIMENTOS")
     print("=" * 60)
     print(f"Total ejecutados: {total}")
     print(f"Exitosos: {successful}")
@@ -258,8 +257,8 @@ def print_summary(successful, failed, total):
     print(f"Tasa de éxito: {(successful/total)*100:.1f}%")
     
     if successful > 0:
-        print("\n✅ Revisa los resultados en MLflow UI:")
-        print(f"   🌐 {tracking_uri}")
+        print("\nRevisa los resultados en MLflow UI:")
+        print(f"   {tracking_uri}")
 
 if __name__ == "__main__":
     main() 
