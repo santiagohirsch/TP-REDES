@@ -30,9 +30,3 @@ variable "private_route_table_name" {
   type = string
   default = "private_route_table"
 }
-
-variable "enable_nat_gateway" {
-  description = "Whether to create a NAT Gateway"
-  type        = bool
-  default     = true
-}
