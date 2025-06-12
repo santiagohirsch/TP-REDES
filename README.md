@@ -1,181 +1,190 @@
-# TP-REDES
+# TP-REDES AI/ML PLATFORMS 
 
-Proyecto de Machine Learning con MLflow y infraestructura en Terraform.
+Trabajo practico especial de la materia Redes de Información (72.20).
+Utilizando _MLflow_ como herramienta para gestionar el ciclo de vida de modelos de Machine Learning y _Terraform_ para la infraestructura de la nube.
 
-## 📋 Requisitos del Sistema
+**Grupo 1**
+- Santiago Tomás Medin - Legajo Nº 62076
+- Bruno Enzo Baumgart  - Legajo Nº 62161
+- Santiago José Hirsch - Legajo Nº 62169
+
+---
+
+## Requisitos del Sistema
 
 ### Software necesario:
-- **Python 3.8+** (cualquier sistema operativo)
-- **Git** para clonar el repositorio
-- **Terraform** (opcional, solo para infraestructura)
 
-### Sistemas operativos compatibles:
-- ✅ Windows 10/11
-- ✅ macOS 10.15+
-- ✅ Linux (Ubuntu, CentOS, etc.)
+Para poder levantar la infraestructura son necesarias las siguientes herramientas:
+- [**Terraform**](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) 
+- [**AWS CLI**](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
-## 🚀 Instalación y Configuración
+### Configuración
 
-### Opción 1: Configuración Automática (Recomendada) 🎯
+Una vez instaladas las herramientas se deben configurar la región de AWS y las claves de acceso de _AWS CLI_. Para hacer esto se deben ejecutar los siguientes comandos en la terminal:
 
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/tu-usuario/TP-REDES.git
-cd TP-REDES
+nano ~/.aws/config
+```
+Dentro de este archivo se debe especificar la región en la que se desplegará la infraestructura. El contenido debe tener el siguiente formato:
 
-# 2. Ejecutar configuración automática
-cd models
-python setup_environment.py
+```
+[default]
+region = <aws-region>
 ```
 
-¡Listo! El script detecta tu sistema operativo y configura todo automáticamente.
+Luego, se deben configurar las claves de acceso:
 
-### Opción 2: Configuración Manual
-
-#### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/TP-REDES.git
-cd TP-REDES
+nano ~/.aws/credentials
+```
+En este archivo se deben incluir las claves de acceso proporcionadas por el laboratorio de AWS, disponibles en **AWS Details → AWS CLI**. El formato esperado es:
+```
+[default]
+aws_access_key_id=<aws_access_key_id>
+aws_secret_access_key=<aws_secret_access_key>
+aws_session_token=<aws_session_token>
 ```
 
-#### 2. Configurar entorno virtual
+## Ejecución
 
-**En Windows:**
-```cmd
-cd models
-python -m venv venv_mlflow
-venv_mlflow\Scripts\activate
-pip install -r requirements.txt
-```
+Una vez completada la [configuración](#configuración), se deben ejecutar los siguientes comandos para desplegar la infraestructura:
 
-**En macOS/Linux:**
+> **NOTA**: El laboratorio de AWS debe estar en ejecución para poder realizar el despliegue.
+
+1. Inicializar los módulos de Terraform:
+    ```bash
+    terraform init
+    ```
+
+2. Revisar el plan de despliegue:
+    ```bash
+    terraform plan
+    ```
+
+3. Aplicar el despliegue (requiere confirmación manual con `"yes"`):
+    ```bash
+    terraform apply
+    ```
+
+Una vez finalizada la ejecución (puede demorar más de 5 minutos), se mostrarán dos líneas en la salida estándar:
+
 ```bash
-cd models
-python3 -m venv venv_mlflow
-source venv_mlflow/bin/activate
-pip install -r requirements.txt
+api_gateway_endpoint = <api_gateway_endpoint>
+ec2_public_ip = <ec2_public_ip>
+```
+Para acceder a la interfaz de gestión del ciclo de vida de los modelos de Machine Learning, ingresar a:
+```
+http://<ec2_public_ip>:5000
 ```
 
-#### 3. Verificar instalación
-```bash
-python --version  # Debe ser 3.8+
-pip list          # Verificar que las dependencias están instaladas
+El valor de api_gateway_endpoint se utiliza para la integración con el Grupo 8. En particular, se puede consultar el endpoint:
+
+`GET <api_gateway_endpoint>/metrics`
+
+donde se exponen las métricas de las últimas ejecuciones de cada experimento registrado en _MLflow_.
+
+## Integración de MLflow a un modelo de Machine Learning
+
+[_MLflow_](https://mlflow.org/docs/latest/) facilita la gestión del ciclo de vida de modelos de Machine Learning. Para integrarlo en un modelo (asumiendo que esté desarrollado en Python), se deben seguir los siguientes pasos:
+
+1. Configurar la URI del servidor de seguimiento:
+    ```python
+    mlflow.set_tracking_uri(uri=<tracking_uri>)
+    ```
+
+    Donde `<tracking_uri>` es la URL `http://<ec2_public_ip>:5000` previamente mencionada.
+
+2. Definir el nombre del experimento (suele coincidir con el nombre del modelo):
+    ```python
+    mlflow.set_experiment(<experiment_name>)
+    ```
+
+3. Registrar métricas, parámetros y artefactos dentro de un bloque de ejecución:
+    ```python
+    with mlflow.start_run(run_name=<run_name>):
+        mlflow.log_params(<params>)
+        
+        for metric_name, metric_value in metrics.items():
+            mlflow.log_metric(metric_name, metric_value)
+        
+        mlflow.set_tag("model_type", <model_type>)
+        for tag_name, tag_value in config['tags'].items():
+            mlflow.set_tag(tag_name, tag_value)
+        
+        signature = mlflow.models.infer_signature(model_input, model_output)  
+        
+        mlflow.sklearn.log_model(
+            sk_model=<model>,
+            signature=signature,
+            input_example=<input_example>,
+            registered_model_name=<model_name>
+        )
+    ```
+
+## Integración con Grupo 8 - Grafana con Prometheus y Loki
+
+La integración con el Grupo 8 implicaba:
+> "Modificar MLflow para exponer métricas en un formato que Prometheus pueda consumir, permitiendo su visualización en los dashboards de Grafana."
+
+Para lograrlo, se incorporaron dos componentes en la infraestructura:
+- **API Gateway**
+- **Lambda Function**
+
+La API Gateway expone un endpoint `GET /metrics`, que invoca una función Lambda encargada de recuperar las métricas de la última ejecución de cada experimento y convertirlas al formato compatible con Prometheus:
+```
+mlflow_<metric_name>{run_id="<run_id>"} <metric_value>
 ```
 
-## 🧪 Ejecutar Experimentos de ML
-
-### Generar configuraciones de experimentos
-```bash
-cd models
-python generate_json_configs.py
-```
-
-### Opciones para ejecutar experimentos:
-
-#### 1. Ejecutor interactivo (recomendado)
-```bash
-python run_json_experiments.py
-```
-
-#### 2. Ejecutar experimento específico
-```bash
-python predictor_from_json.py configs/linear_regression_config_01.json
-```
-
-#### 3. Ejecutar todos los experimentos
-```bash
-python run_json_experiments.py --all
-```
-
-### Ver resultados en MLflow
-```bash
-mlflow ui
-```
-Luego abre tu navegador en: http://localhost:5000
-
-## 📁 Estructura del Proyecto
-
+## Estructura del Proyecto
 ```
 TP-REDES/
-├── models/                     # Código de Machine Learning
-│   ├── configs/               # Configuraciones de experimentos (*.json - no incluido en Git)
-│   ├── mlruns/               # Runs de MLflow (no incluido en Git)
-│   ├── mlartifacts/          # Artefactos de MLflow (no incluido en Git)
-│   ├── requirements.txt      # Dependencias de Python
-│   ├── setup.py             # Configuración del proyecto
+├── README.md
+├── api
+│   ├── api_layer.zip
+│   ├── metrics.py
+│   └── metrics.zip
+├── main.tf
+├── models
+│   ├── README.md
+│   ├── configs
+│   ├── dataset_futbol_simulado.csv
 │   ├── generate_json_configs.py
-│   ├── run_json_experiments.py
 │   ├── predictor_from_json.py
-│   ├── predictor_*.py        # Diferentes modelos
-│   └── dataset_futbol_simulado.csv
-├── modules/                   # Módulos de Terraform
-│   ├── vpc/
-│   ├── ec2/
-│   └── rds/
-├── *.tf                      # Archivos de Terraform
-└── README.md
+│   ├── predictor_gradient_boosting_regressor.py
+│   ├── predictor_linear_regression.py
+│   ├── predictor_poisson_regressor.py
+│   ├── predictor_random_forest_regressor.py
+│   ├── requirements.txt
+│   ├── run_json_experiments.py
+│   ├── setup.py
+│   └── setup_environment.py
+├── modules
+│   ├── api_gw
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── ec2
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── scripts
+│   │   │   ├── mlflow-server.sh
+│   │   │   └── service.txt
+│   │   └── variables.tf
+│   ├── lambda
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   ├── rds
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   └── vpc
+│       ├── main.tf
+│       ├── outputs.tf
+│       └── variables.tf
+├── outputs.tf
+├── provider.tf
+├── terraform.tfvars
+├── variables.tf
+└── version.tf
 ```
-
-## 🔧 Solución de Problemas Comunes
-
-### Error: "python3 no encontrado" (Windows)
-- Usar `python` en lugar de `python3`
-- Verificar que Python está en el PATH
-
-### Error: "permiso denegado" (Linux/macOS)
-```bash
-chmod +x *.py
-```
-
-### Error: "módulo no encontrado"
-- Verificar que el entorno virtual está activado
-- Reinstalar dependencias: `pip install -r requirements.txt`
-
-### MLflow UI no abre
-- Verificar que está en el directorio `models/`
-- Verificar puerto 5000 disponible: `lsof -i :5000` (macOS/Linux)
-
-## 🌐 Comandos por Sistema Operativo
-
-| Acción | Windows | macOS/Linux |
-|--------|---------|-------------|
-| Activar entorno | `venv_mlflow\Scripts\activate` | `source venv_mlflow/bin/activate` |
-| Desactivar entorno | `deactivate` | `deactivate` |
-| Python | `python` | `python3` o `python` |
-| Ver procesos en puerto | `netstat -an \| findstr 5000` | `lsof -i :5000` |
-
-## 📊 Modelos Disponibles
-
-- **Linear Regression**: Regresión lineal básica
-- **Random Forest Regressor**: Bosques aleatorios
-- **Gradient Boosting Regressor**: Boosting de gradiente
-- **Poisson Regressor**: Regresión de Poisson
-
-## 🏗️ Infraestructura (Terraform)
-
-### Requisitos adicionales:
-- AWS CLI configurado
-- Credenciales de AWS
-
-### Comandos:
-```bash
-terraform init
-terraform plan
-terraform apply
-```
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crear rama de feature: `git checkout -b feature/nueva-funcionalidad`
-3. Commit cambios: `git commit -m 'Agregar nueva funcionalidad'`
-4. Push a la rama: `git push origin feature/nueva-funcionalidad`
-5. Abrir Pull Request
-
-## 📞 Soporte
-
-Si tienes problemas ejecutando los experimentos, verifica:
-1. ✅ Python 3.8+ instalado
-2. ✅ Entorno virtual activado
-3. ✅ Dependencias instaladas
-4. ✅ Estás en el directorio `models/`
